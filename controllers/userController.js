@@ -1,10 +1,12 @@
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
 
+// Cookie options: when in production and frontend is on a different origin we must
+// use sameSite: 'none' and secure: true so browsers send cookies for cross-site requests.
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
 };
 
@@ -151,9 +153,10 @@ export const updateUserProfile = async (req, res, next) => {
 
 export const logoutUser = async (req, res, next) => {
   try {
-    res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+    res.clearCookie('token', { httpOnly: true, sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', secure: process.env.NODE_ENV === 'production' });
     res.json({ message: 'Logged out' });
   } catch (err) {
     next(err);
   }
 };
+
