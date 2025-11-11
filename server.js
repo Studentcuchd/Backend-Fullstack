@@ -16,7 +16,7 @@ const app = express();
 // CORS configuration to allow frontend at http://localhost:3000 and send credentials
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || 'http://localhost:3000','https://frontend-fullstack-tau.vercel.app/',
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
@@ -41,3 +41,4 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
