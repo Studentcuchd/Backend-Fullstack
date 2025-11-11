@@ -13,10 +13,21 @@ connectDB();
 
 const app = express();
 
-// CORS configuration to allow frontend at http://localhost:3000 and send credentials
+// CORS configuration: allow localhost and the FRONTEND client URL when set.
+// Use a small whitelist and fall back to allowing all origins when no CLIENT_URL is provided
+// (useful for simple deploy setups). Keep credentials enabled so httpOnly cookies work.
+const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:3000'].filter(Boolean);
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'https://frontend-fullstack-tau.vercel.app/',
+    origin: function (origin, callback) {
+      // Allow requests with no origin like mobile apps or curl
+      if (!origin) return callback(null, true);
+      // If no whitelist is configured, allow the requesting origin (be permissive)
+      if (allowedOrigins.length === 0) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    },
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
@@ -41,5 +52,4 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 
